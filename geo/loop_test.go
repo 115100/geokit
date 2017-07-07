@@ -12,15 +12,7 @@ var _ = Describe("Loop", func() {
 	var subject *Loop
 
 	BeforeEach(func() {
-		subject = &Loop{
-			Kind: LoopKindOuter,
-			Loop: s2.LoopFromPoints([]s2.Point{
-				s2.PointFromLatLng(ne),
-				s2.PointFromLatLng(nw),
-				s2.PointFromLatLng(sw),
-				s2.PointFromLatLng(se),
-			}),
-		}
+		subject = coloradoLoop
 	})
 
 	DescribeTable("should show overlaps",
@@ -82,4 +74,29 @@ var _ = Describe("Loop", func() {
 			s2.CellIDFromToken("8776c"),
 		}))
 	})
+
+	DescribeTable("should return loop intersects with cell",
+		func(cell s2.Cell, prior *Loop, exp *s2.Loop) {
+			subject = prior
+			Expect(subject.IntersectWithCell(cell)).To(Equal(exp))
+		},
+
+		// TODO: Implement and write tests using https://codepen.io/sdinh1993/pen/WOKZEo
+		Entry("Colorado with cell #487", s2.CellFromCellID(s2.CellIDFromToken("487")), coloradoLoop, s2.EmptyLoop()),
+		Entry("Colorado with cell #87", s2.CellFromCellID(s2.CellIDFromToken("87")), coloradoLoop, coloradoLoop.Loop),
+		Entry("Colorado with cell #876b3", s2.CellFromCellID(s2.CellIDFromToken("876b3")), coloradoLoop, s2.LoopFromCell(s2.CellFromCellID(s2.CellIDFromToken("876b3")))),
+	)
 })
+
+// ----------------------------------
+
+// CCW loop around Colorado
+var coloradoLoop = &Loop{
+	Kind: LoopKindOuter,
+	Loop: s2.LoopFromPoints([]s2.Point{
+		s2.PointFromLatLng(ne),
+		s2.PointFromLatLng(nw),
+		s2.PointFromLatLng(sw),
+		s2.PointFromLatLng(se),
+	}),
+}

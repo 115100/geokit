@@ -37,6 +37,35 @@ type Loop struct {
 	Kind LoopKind
 }
 
+// IntersectWithCell returns a Loop enclosing
+// the common area between l and cell.
+func (l *Loop) IntersectWithCell(cell s2.Cell) *s2.Loop {
+	switch l.Overlap(cell) {
+	// Simple cases
+	case LoopOverlap_ContainsCell:
+		// Cell is enclosed by loop,
+		// so the cell itself encloses
+		// the intersect.
+		return s2.LoopFromCell(cell)
+	case LoopOverlap_ContainedByCell:
+		// Loop is enclosed by cell,
+		// so the loop itself encloses
+		// the intersect. Allocate new
+		// loop and return it.
+		lp := *l.Loop
+		return &lp
+	default:
+		// No intersect
+		return s2.EmptyLoop()
+
+	// The actual difficult case
+	case LoopOverlap_Partial:
+		// TODO: Implement this
+		return s2.FullLoop()
+	}
+
+}
+
 // Overlap returns the overlap relationship between
 // the loop and a cell
 func (l *Loop) Overlap(cell s2.Cell) LoopOverlap {
